@@ -55,7 +55,7 @@ def unshifted(filename, debug, full_debug, numeric):
             except ProgramEnd:
                 break
         else:
-            raise SyntaxError(f'Invalid char {ins}.')
+            raise SyntaxError(f'Invalid char {ins} (codepoint {ord(ins)}).')
     
     # At end of program, implicit output:
     for item in deq.deq:
