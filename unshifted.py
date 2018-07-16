@@ -1,50 +1,10 @@
 """A unique esoteric programming language with self-modifying code that uses a deque."""
 __version__ = '0.1'
 
-from collections import deque
 import click
 
-instructions = {
-    '+': lambda d: d.push(d.pop() + d.pop()),
-}
-
-lq_instructions = {
-
-}
-
-class UnshiftedDeque(deque):
-    def __init__(self, iterable=None):
-        super().__init__(iterable)
-        self.left_side = True
-    
-    def push(self, val):
-        if self.left_side:
-            self.appendleft(val)
-        else:
-            self.append(val)
-    
-    def pop(self):
-        if self.left_side:
-            self.popleft()
-        else:
-            self.pop()
-    
-    @property
-    def end(self):
-        if self.left_side:
-            return self[0]
-        else:
-            return self[-1]
-    
-    @end.setter
-    def end(self, val):
-        if self.left_side:
-            self[0] = val
-        else:
-            self[-1] = val
-
-def main():
-    unshifted()
+from instructions import instructions
+from classes import UnshiftedDeque, ProgramEnd
 
 
 @click.command()
@@ -57,32 +17,58 @@ def unshifted(filename, debug, full_debug):
         click.echo(f'Unshifted Version {__version__} by Amphibological.')
         click.echo('Please provide a file to interpret.')
         exit(0)
+    
     with open(filename) as file:
         prog = file.read()
+    
     deq = lex(prog)
     loop_queue = UnshiftedDeque()
+    loop_mode = False
+
     while deq:
-        ins = deq.pop()
-        if ins in instructions:
-            instructions[ins](deq)
+        ins = chr(deq.pop_ins())
+        if loop_mode:
+            if ins != '}':
+                loop_queue.push(ins)
+            else:
+                loop_mode = False
+                for _ in range(deq.pop()):
+                    try:
+                        for ch in loop_queue.deq:
+                            execute(ch, deq)
+                    except ProgramEnd:
+                        break
+        elif ins == '{':
+            loop_mode = True
+        elif ins in instructions or ins in '!@0123456789':
+            try:
+                execute(ins, deq)
+            except ProgramEnd:
+                break
         else:
-            lq_instructions[ins](deq, loop_queue)
+            raise SyntaxError(f'Invalid char {ins}.')
 
-    
 
+def execute(ins, deq):
+    """Executes a single Unshifted instruction on deq."""
+    if ins == '!':
+        deq.toggle_ins_end()
+    elif ins == '@':
+        raise ProgramEnd()
+    elif ins in '0123456789':
+        deq.push((deq.pop() * 10) + int(ins))
+    else:
+        instructions[ins](deq)
 
 
 def lex(prog):
-    """Convert raw string into deque of tokens."""
-    line = character = 1
-    for ch in prog:
-        if ch == '\n':
-            line += 1
-        elif ch not in instructions or ch not in lq_instructions:
-            raise SyntaxError(f'Invalid character {ch} at {line}:{character}.')
-        character += 1
+    """Convert raw string into deque of codepoints."""
     
-    return UnshiftedDeque(prog)
+    return UnshiftedDeque(map(ord, prog))
+
+
+def main():
+    unshifted()
 
 
 if __name__ == '__main__':
