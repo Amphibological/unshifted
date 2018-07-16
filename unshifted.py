@@ -28,9 +28,15 @@ def unshifted(filename, debug, full_debug):
     while deq:
         ins = chr(deq.pop_ins())
         if loop_mode:
-            if ins != '}':
-                loop_queue.push(ins)
-            else:
+            if ins == '}':
+                loop_mode = False
+                while deq.end:
+                    try:
+                        for ch in loop_queue.deq:
+                            execute(ch, deq)
+                    except ProgramEnd:
+                            break
+            elif ins == ']':
                 loop_mode = False
                 for _ in range(deq.pop()):
                     try:
@@ -38,7 +44,9 @@ def unshifted(filename, debug, full_debug):
                             execute(ch, deq)
                     except ProgramEnd:
                         break
-        elif ins == '{':
+            else:
+                loop_queue.push(ins)
+        elif ins == '[' or ins == '{':
             loop_mode = True
         elif ins in instructions or ins in '!@0123456789':
             try:

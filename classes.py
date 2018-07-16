@@ -30,10 +30,13 @@ class UnshiftedDeque:
     
     @property
     def end(self):
-        if self.dp_left_side:
-            return self.deq[0]
-        else:
-            return self.deq[-1]
+        try:
+            if self.dp_left_side:
+                return self.deq[0]
+            else:
+                return self.deq[-1]
+        except IndexError:
+            return 0
     
     @end.setter
     def end(self, val):
@@ -56,4 +59,3 @@ class UnshiftedDeque:
     
     def __bool__(self):
         return bool(self.deq)
- 
