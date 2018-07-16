@@ -14,7 +14,7 @@ def input_ascii(d):
 
 
 def output_ascii(d):
-    sys.stdout.write(chr(d.pop()))
+    print(chr(d.pop()), end='')
 
 
 def output_decimal(d):
@@ -41,7 +41,7 @@ instructions = {
     ';': input_ascii,
     '^': lambda d: d.push(d.pop() ^ d.pop()),
     '_': lambda d: d.pop(),
-    '`': lambda d: None,
+    '`': lambda d: d.push(d.end),
     '"': lambda d: None, # TODO implement debug.
     "'": lambda d: d.toggle_end(),
     '#': lambda d: d.push(0),
