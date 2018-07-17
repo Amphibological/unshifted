@@ -21,7 +21,7 @@ def output_decimal(d):
     print(d.pop(), end='')
 
 def swap_ends(d):
-    d[0], d[-1] = d[-1], d[0]
+    d.deq[0], d.deq[-1] = d.deq[-1], d.deq[0]
 
 
 instructions = {
